@@ -110,6 +110,9 @@ public class Lexer {
                     sb = new StringBuilder();
                     readch();
                     do{
+                        if (ch == '\n'){
+                            line_count ++;
+                        }
                         sb.append(ch);
                         readch();
                         if(ch == '*'){
@@ -119,12 +122,11 @@ public class Lexer {
                                 return new Word(Tag.COMMENT,sb.toString());
                             else
                                 sb.append(aux);
-                            
-                            if (ch == -1){
-                                throw new LexicalError("EOF", line_count);
-                            }
                         }
-                    }while(ch != -1);
+                        if (ch==-1 || ch == 65535){
+                            throw new LexicalError("EOF", line_count);
+                        }
+                    }while(1==1);
                 }else if(ch == '/'){
                     sb = new StringBuilder();
                     readch();
