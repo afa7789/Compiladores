@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.util.Set;
 import lexer.Lexer;
 import lexer.LexicalError;
+import lexer.Tag;
 import lexer.Token;
+import symbolTb.Id;
 
 public class Compilador {
 
@@ -23,17 +25,21 @@ public class Compilador {
             do{
                 aux = lexy.scan();
                 System.out.println(lexy.getLineCount() +" "+aux.getTag() +" "+ aux.getLexeme());
+                
+                if (aux.getTag().equals(Tag.ID)){
+                     if (lexy.rootEnv.get(aux) == null){
+                        lexy.rootEnv.put(aux, new Id());
+                    }
+                }
+                
             }while(!aux.getLexeme().equals("EOF"));
         } catch (LexicalError ex) {
             System.out.println("Lexical Error: " + ex.getMessage());
         }
 
-        System.out.println("\n------------------------\nSymbol Table:");
+        System.out.println("\n------------------------\nSymbol Table:\n");
         
-        Set<String> keys = lexy.words.keySet();
-        for(String key: keys){
-            System.out.println("Entry: "+key);
-        }
+        lexy.rootEnv.show();
         
         System.out.println("\n------------------------\n");
     }

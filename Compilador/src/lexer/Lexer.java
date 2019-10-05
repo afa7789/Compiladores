@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Hashtable;
+import symbolTb.Env;
+import symbolTb.Id;
 //package LEX;
 
 /**
@@ -21,6 +23,8 @@ public class Lexer {
     private static int line_count = 1;
     private char ch =' ';
     private char store =' ';
+    
+    public Env rootEnv = new Env(null);
     
     public Hashtable words = new Hashtable();
     
@@ -194,6 +198,7 @@ public class Lexer {
             String s = sb.toString();
             Word w = (Word) words.get(s);
             store = ch;
+            
             if (w != null)
                 return w;
             w = new Word(Tag.ID,s);
