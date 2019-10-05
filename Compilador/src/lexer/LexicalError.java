@@ -11,7 +11,7 @@ package lexer;
  */
 public class LexicalError extends Exception{
 
-    public LexicalError(char ch, int line) {
+    public LexicalError(String ch, int line) {
         super("Unexpected character \"" + ch + "\" at line " + line);
     }
     

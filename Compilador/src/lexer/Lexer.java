@@ -6,8 +6,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Hashtable;
-import symbolTb.Env;
-import symbolTb.Id;
 //package LEX;
 
 /**
@@ -24,10 +22,8 @@ public class Lexer {
     private char ch =' ';
     private char store =' ';
     
-    public Env rootEnv = new Env(null);
-    
-    public Hashtable words = new Hashtable();
-    
+    public Hashtable words;
+        
     public Lexer(String fileName) throws FileNotFoundException, IOException {
       try{
         f = new File(fileName);  
@@ -39,6 +35,8 @@ public class Lexer {
        }  
 
       ch = ' ';
+      
+      words = new Hashtable();
       //c =br.read();
       //reservar palavras.
       reserve(new Word(Tag.AND,"and"));
@@ -121,8 +119,12 @@ public class Lexer {
                                 return new Word(Tag.COMMENT,sb.toString());
                             else
                                 sb.append(aux);
+                            
+                            if (ch == -1){
+                                throw new LexicalError("EOF", line_count);
+                            }
                         }
-                    }while(ch != '"');
+                    }while(ch != -1);
                 }else if(ch == '/'){
                     sb = new StringBuilder();
                     readch();
@@ -210,8 +212,7 @@ public class Lexer {
             return new Token(Tag.EOF, "EOF");
         }
         
-        
-        throw new LexicalError(ch, line_count);
+        throw new LexicalError(("" + ch), line_count);
     }
     
     public int getLineCount(){
