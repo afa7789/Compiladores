@@ -6,7 +6,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Hashtable;
-
 //package LEX;
 
 /**
@@ -19,10 +18,11 @@ public class Lexer {
     private File f;
     private FileReader fr;
     private BufferedReader br;
-    private static int line_count =0;
+    private static int line_count = 1;
     private char ch =' ';
+    private char store =' ';
     
-    private Hashtable words = new Hashtable();
+    public Hashtable words = new Hashtable();
     
     public Lexer(String fileName) throws FileNotFoundException, IOException {
       try{
@@ -61,7 +61,14 @@ public class Lexer {
     }
     
     private void readch() throws IOException{
-        ch = (char) fr.read();
+        if (store == ' '){
+            ch = (char) fr.read();
+        }
+        else
+        {
+            ch = store;
+            store = ' ';
+        }
     }
     
     private boolean readchisc(char c) throws IOException{
@@ -71,7 +78,7 @@ public class Lexer {
        return true;  
     }
     
-    public Token scan() throws IOException{
+    public Token scan() throws IOException, LexicalError{
         readch();
         for(;;readch()){
             if( (ch == ' ')|| (ch == 32) || (ch =='\t') || (ch == '\r') || (ch == '\b')) continue;
@@ -93,32 +100,8 @@ public class Lexer {
                     }
                 }while(ch != '”');
                 return new Word(Tag.LITERAL,sb.toString());
-            case '"':
-                sb = new StringBuilder();
-                readch();
-                do{
-                    sb.append(ch);
-                    readch();
-                    if(ch == -1 || ch == 65535){
-                        return new Word(Tag.UNKNOWN,sb.toString());
-                    }
-                }while(ch != '"');
-                return new Word(Tag.LITERAL,sb.toString());
             case ';':
                 return Symbol.semicolon;
-            case '.':
-                readch();
-                if(Character.isDigit(ch)){
-                    int counter =0;
-                    float valueFF=0;
-                    do{
-                        counter--;
-                        valueFF += Math.pow(10,counter)*Character.digit(ch,10);
-                        readch();
-                    }while(Character.isDigit(ch));
-                }
-                
-                return Symbol.dot;
             case '/':
                 readch();
                 if( ch =='*'){
@@ -194,10 +177,12 @@ public class Lexer {
                     readch();
                 }while(Character.isDigit(ch));
                 valueF+=valueF2;
+                store = ch;
                 return new FloatConst(Tag.FLOATING, valueF);
             }
+            store = ch;
             return new IntegerConst(Tag.INTEGER, value);                
-        }   
+        }
         
         if(Character.isLetter(ch)){
             sb = new StringBuilder();
@@ -208,22 +193,20 @@ public class Lexer {
 
             String s = sb.toString();
             Word w = (Word) words.get(s);
+            store = ch;
             if (w != null)
                 return w;
             w = new Word(Tag.ID,s);
             words.put(s, w);
             return w;
         } 
-                
-       // System.out.println((int)ch);
-        
+                        
         if(ch==-1 || ch == 65535){
-            return new Token(Tag.UNKNOWN,"EOF");
+            return new Token(Tag.EOF, "EOF");
         }
         
-        Token t = new Token(String.valueOf(ch));
-        ch = ' ';
-        return  t;
+        
+        throw new LexicalError(ch, line_count);
     }
     
     public int getLineCount(){

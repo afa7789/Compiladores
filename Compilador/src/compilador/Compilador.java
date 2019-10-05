@@ -2,7 +2,9 @@ package compilador;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Set;
 import lexer.Lexer;
+import lexer.LexicalError;
 import lexer.Token;
 
 public class Compilador {
@@ -15,11 +17,25 @@ public class Compilador {
         System.out.println(s);
         
         Lexer lexy = new Lexer(s);
-        Token aux ;
-        do{
-            aux = lexy.scan();
-            System.out.println(lexy.getLineCount() +" "+aux.getTag() +" "+ aux.getLexeme());
-        }while(!aux.getLexeme().equals("EOF"));
+        Token aux;
+        
+        try {
+            do{
+                aux = lexy.scan();
+                System.out.println(lexy.getLineCount() +" "+aux.getTag() +" "+ aux.getLexeme());
+            }while(!aux.getLexeme().equals("EOF"));
+        } catch (LexicalError ex) {
+            System.out.println("Lexical Error: " + ex.getMessage());
+        }
+
+        System.out.println("\n------------------------\nSymbol Table:");
+        
+        Set<String> keys = lexy.words.keySet();
+        for(String key: keys){
+            System.out.println("Entry: "+key);
+        }
+        
+        System.out.println("\n------------------------\n");
     }
     
 }

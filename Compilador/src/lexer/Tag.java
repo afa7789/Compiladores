@@ -85,9 +85,6 @@ public class Tag {
             OPEN_C          = "OPEN_C",
             CLOSE_C         = "CLOSE_C",
             
-            // '.'
-            DOT             = "DOT",
-            
             // contante literal            
             LITERAL         = "LITERAL",
             
@@ -100,6 +97,8 @@ public class Tag {
             
             // token desconhecido
             UNKNOWN         = "UNKNOWN",
-            COMMENT         = "COMMENT";
+            COMMENT         = "COMMENT",
+    
+            EOF             = "EOF";
 
 }

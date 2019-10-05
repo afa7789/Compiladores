@@ -16,7 +16,6 @@ public class Symbol extends Token {
     public static final Symbol diff            = new Symbol(Tag.DIFF          ,"<>");
     public static final Symbol semicolon       = new Symbol(Tag.SEMICOLON     ,";" );
     public static final Symbol comma           = new Symbol(Tag.COMMA         ,"," );
-    public static final Symbol dot             = new Symbol(Tag.DOT           ,"." );
     public static final Symbol equal           = new Symbol(Tag.EQUAL         ,"=" );
     public static final Symbol sum             = new Symbol(Tag.SUM           ,"+" );
     public static final Symbol minus           = new Symbol(Tag.MINUS         ,"-" );
