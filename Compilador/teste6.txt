@@ -1,4 +1,4 @@
 start
-	print("Tem que fazer um teste aqui");
+	print(“Tem que fazer um teste aqui”);
 exit
 
