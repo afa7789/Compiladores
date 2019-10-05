@@ -1,11 +1,5 @@
 package lexer;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.BufferedReader;
@@ -163,11 +157,7 @@ public class Lexer {
                 return Symbol.open_par;
             case ')':
                 return Symbol.close_par;
-            //case '{':
-            //    return Symbol.open_c;
-            //case '}':
-            //    return Symbol.close_c;
-                
+
             case '=':
                 if(readchisc('='))
                     return Symbol.comparation;

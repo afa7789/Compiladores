@@ -1,13 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package lexer;
 
 /**
  *
- * @author arthur
+ * @author Arthur e Jonathan
  */
 public class Symbol extends Token {
     
@@ -29,8 +24,6 @@ public class Symbol extends Token {
     public static final Symbol div             = new Symbol(Tag.DIV           ,"/" );
     public static final Symbol open_par        = new Symbol(Tag.OPEN_PAR      ,"(" );
     public static final Symbol close_par       = new Symbol(Tag.CLOSE_PAR     ,")" );
-    public static final Symbol open_c          = new Symbol(Tag.OPEN_C        ,"{" );
-    public static final Symbol close_c         = new Symbol(Tag.CLOSE_C       ,"}" );
     public static final Symbol comment         = new Symbol(Tag.COMMENT       ,"" );
 
     // palavras chave
