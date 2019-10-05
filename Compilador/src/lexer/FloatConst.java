@@ -8,7 +8,7 @@ public class FloatConst extends Token{
    
     private final float value;
 
-    public FloatConst(float value, String tag) {
+    public FloatConst(String tag, float value) {
         super(tag);
         this.value = value;
     }

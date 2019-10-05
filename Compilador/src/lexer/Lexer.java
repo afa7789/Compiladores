@@ -194,11 +194,10 @@ public class Lexer {
                     readch();
                 }while(Character.isDigit(ch));
                 valueF+=valueF2;
-                return new FloatConst(valueF,Tag.FLOATING);
+                return new FloatConst(Tag.FLOATING, valueF);
             }
-            return new IntegerConst(value,Tag.INTEGER);                
-        }
-            
+            return new IntegerConst(Tag.INTEGER, value);                
+        }   
         
         if(Character.isLetter(ch)){
             sb = new StringBuilder();
@@ -211,7 +210,7 @@ public class Lexer {
             Word w = (Word) words.get(s);
             if (w != null)
                 return w;
-            w = new Word(s,Tag.ID);
+            w = new Word(Tag.ID,s);
             words.put(s, w);
             return w;
         } 
