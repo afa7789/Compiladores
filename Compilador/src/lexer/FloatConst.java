@@ -8,8 +8,8 @@ public class FloatConst extends Token{
    
     private final float value;
 
-    public FloatConst(String tag, float value) {
-        super(tag);
+    public FloatConst(float value) {
+        super(Tag.FLOATING);
         this.value = value;
     }
     

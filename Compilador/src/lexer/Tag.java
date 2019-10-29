@@ -39,7 +39,7 @@ public class Tag {
             
             //operadores
             // +
-            SUM             = "SUM",
+            PLUS             = "SUM",
             
             // -
             MINUS           = "MINUS",

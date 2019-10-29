@@ -37,8 +37,6 @@ public class Lexer {
       ch = ' ';
       
       words = new Hashtable();
-      //c =br.read();
-      //reservar palavras.
       reserve(new Word(Tag.AND,"and"));
       reserve(new Word(Tag.OR,"or"));
       reserve(new Word(Tag.NOT,"not"));
@@ -186,10 +184,10 @@ public class Lexer {
                 }while(Character.isDigit(ch));
                 valueF+=valueF2;
                 store = ch;
-                return new FloatConst(Tag.FLOATING, valueF);
+                return new FloatConst(valueF);
             }
             store = ch;
-            return new IntegerConst(Tag.INTEGER, value);                
+            return new IntegerConst(value);                
         }
         
         if(Character.isLetter(ch)){

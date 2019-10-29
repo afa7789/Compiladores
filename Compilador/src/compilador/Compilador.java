@@ -2,40 +2,43 @@ package compilador;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import lexer.Lexer;
 import lexer.LexicalError;
+import lexer.Tag;
 import lexer.Token;
+import syntax.SyntaxAnalyser;
+import syntax.SyntaxError;
 
 public class Compilador {
 
     public static void main(String[] args) throws FileNotFoundException, IOException {
-        // recebe uma lista com comandos em texto. tem 1 arquivo de texto entrado pelo args.
-        //1 ª etapa. precisa identificar os tokens, colocar eles em tabelas de simbolos.
-        // mostra os tokens 
         String s = args[0];
         System.out.println(s);
         
         Lexer lexy = new Lexer(s);
-        Token aux;
+        Token token;
+        List<Token> tokenList;
+        tokenList = new ArrayList();
         
         try {
+            //Lexic
             do{
-                aux = lexy.scan();
-                System.out.println(lexy.getLineCount() +" "+aux.getTag() +" "+ aux.getLexeme());
-            }while(!aux.getLexeme().equals("EOF"));
+                token = lexy.scan();
+                tokenList.add(token);
+            }while(!token.getLexeme().equals("EOF"));
+            
+            //Syntax
+            SyntaxAnalyser syntax = new SyntaxAnalyser(tokenList);
+            
+            syntax.scan();
+            
         } catch (LexicalError ex) {
             System.out.println("Lexical Error: " + ex.getMessage());
+        } catch (SyntaxError ex) {
+            System.out.println("Syntax Error: " + ex.getMessage());
         }
-
-        System.out.println("\n------------------------\nSymbol Table:\n");
-        
-        Set<String> keys = lexy.words.keySet();
-        for(String key: keys){
-            System.out.println("Entry: "+key);
-        }
-        
-        System.out.println("\n------------------------\n");
     }
     
 }

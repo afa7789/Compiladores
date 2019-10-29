@@ -7,8 +7,8 @@ package lexer;
 public class IntegerConst extends Token{
     private final int value;
 
-    public IntegerConst(String tag, int value) {
-        super(tag);
+    public IntegerConst(int value) {
+        super(Tag.INTEGER);
         this.value = value;
     }
 
