@@ -46,7 +46,7 @@ public class SyntaxAnalyser {
         while(token.getTag().equals(Tag.COMMENT)) advance();
         if (token.getTag().equals(Tag.EOF)) return;
         if (token.getTag().equals(tag)) advance();
-        else error();
+        else {error();}
     }
     
     void error(){
@@ -59,10 +59,12 @@ public class SyntaxAnalyser {
     }
     
     void P_START(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         eat(Tag.START); PROGRAM();
     }
     
     void PROGRAM(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch (token.getTag()){
             case Tag.INT:
             case Tag.FLOAT:
@@ -86,11 +88,13 @@ public class SyntaxAnalyser {
     }
     
     void DECL_LIST(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         DECL();
         DECL_REC();
     }
     
     void DECL_REC(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.INT:
             case Tag.FLOAT:
@@ -103,6 +107,7 @@ public class SyntaxAnalyser {
     }
     
     void DECL(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.INT:
             case Tag.FLOAT:
@@ -114,10 +119,12 @@ public class SyntaxAnalyser {
     }
     
     void IDENT_LIST(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         eat(Tag.ID); IDENT_REC();
     }
     
     void IDENT_REC(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.COMMA:
                 eat(Tag.COMMA); eat(Tag.ID); IDENT_REC(); break;
@@ -126,6 +133,7 @@ public class SyntaxAnalyser {
     }
     
     void TYPE(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.INT:
                 eat(Tag.INT);break;
@@ -138,10 +146,12 @@ public class SyntaxAnalyser {
     }
     
     void STMT_LIST(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         STMT(); STMT_REC();
     }
     
     void STMT_REC(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.ID:
             case Tag.IF:
@@ -154,6 +164,7 @@ public class SyntaxAnalyser {
     }
     
     void STMT(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.ID:
                 ASSIGN_STMT(); eat(Tag.SEMICOLON); break;
@@ -170,14 +181,17 @@ public class SyntaxAnalyser {
     }
     
     void ASSIGN_STMT(){
-        eat(Tag.ID); eat(Tag.EQUAL); SIMPLE_EXP();
+        while(token.getTag().equals(Tag.COMMENT)) advance();
+        eat(Tag.ID); eat(Tag.EQUAL); SIMPLE_EXP(); 
     } 
     
     void IF_STMT(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         eat(Tag.IF); CONDITION(); eat(Tag.THEN); STMT_LIST(); IF_END();
     } 
     
     void IF_END(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.END:
                 eat(Tag.END); break;
@@ -188,34 +202,42 @@ public class SyntaxAnalyser {
     }
     
     void CONDITION(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         EXPRESSION();
     }
     
     void WHILE_STMT(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         eat(Tag.DO); STMT_LIST(); STMT_SUFIX();
     } 
     
     void STMT_SUFIX(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         eat(Tag.WHILE); CONDITION(); eat(Tag.END);
     } 
     
     void READ_STMT(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         eat(Tag.SCAN); eat(Tag.OPEN_PAR); eat(Tag.ID); eat(Tag.CLOSE_PAR);
     } 
     
     void WRITE_STMT(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         eat(Tag.PRINT); eat(Tag.OPEN_PAR); WRITABLE(); eat(Tag.CLOSE_PAR);
     } 
     
     void WRITABLE(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         SIMPLE_EXP();
     }
     
     void EXPRESSION(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         SIMPLE_EXP(); EXP_END();
     }
     
     void EXP_END(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.COMPARATION:
             case Tag.GREATHER_EQUAL:
@@ -229,10 +251,12 @@ public class SyntaxAnalyser {
     }
     
     void SIMPLE_EXP(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         TERM(); SIMPLE_END();
     }
     
     void SIMPLE_END(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.MINUS:
             case Tag.OR:
@@ -243,10 +267,12 @@ public class SyntaxAnalyser {
     }
     
     void TERM(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         FACTOR_A(); TERM_END();
     }
     
     void TERM_END(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.MULT:
             case Tag.DIV:
@@ -257,6 +283,7 @@ public class SyntaxAnalyser {
     }
     
     void FACTOR_A(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.MINUS:
                 eat(Tag.MINUS); FACTOR(); break;
@@ -274,6 +301,7 @@ public class SyntaxAnalyser {
     }
     
     void FACTOR(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.ID:
                 eat(Tag.ID); break;
@@ -289,6 +317,7 @@ public class SyntaxAnalyser {
     }
     
     void REL_OP(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.COMPARATION:
                 eat(Tag.COMPARATION);break;
@@ -307,6 +336,7 @@ public class SyntaxAnalyser {
     }
     
     void ADD_OP(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.PLUS:
                 eat(Tag.PLUS);break;
@@ -319,6 +349,7 @@ public class SyntaxAnalyser {
     }
     
     void MUL_OP(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.MULT:
                 eat(Tag.MULT);break;
@@ -331,6 +362,7 @@ public class SyntaxAnalyser {
     }
     
     void CONSTANT(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.INTEGER:
                 eat(Tag.INTEGER);break;
