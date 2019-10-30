@@ -5,6 +5,7 @@
  */
 package syntax;
 
+import java.util.ArrayList;
 import java.util.List;
 import lexer.Tag;
 import lexer.Token;
@@ -18,43 +19,50 @@ public class SyntaxAnalyser {
     public Token token;
     private int index;
     private List<Token> tokenList;
+    private List<Integer> lineData;
+    public List<String> errorList;
     private int line_count;
     
-    public SyntaxAnalyser(List<Token> list){
+    public SyntaxAnalyser(List<Token> list, List<Integer> lines){
         index = 0;
         tokenList = list;
+        lineData = lines;
+        errorList = new ArrayList();
         token = getToken(); //lê primeiro token
         line_count = 0;
     }
     
     private Token getToken(){
         index ++;
+        line_count = lineData.get(index-1);
         return tokenList.get(index-1);
     }
     
     void advance() {
-        token = getToken(); //lê próximo tokenen
+        token = getToken(); //lê próximo token
     }
     
-    void eat(String tag) throws SyntaxError{
+    void eat(String tag){
         while(token.getTag().equals(Tag.COMMENT)) advance();
+        if (token.getTag().equals(Tag.EOF)) return;
         if (token.getTag().equals(tag)) advance();
         else error();
     }
     
-    void error() throws SyntaxError{
-        throw new SyntaxError(token.getLexeme(), line_count);
+    void error(){
+        String message = "Unexpected token \"" + token.getLexeme() + "\" at line " + line_count;
+        errorList.add(message);
     }
     
-    public void scan() throws SyntaxError{
+    public void scan(){
         P_START(); eat(Tag.EOF);
     }
     
-    void P_START() throws SyntaxError{
+    void P_START(){
         eat(Tag.START); PROGRAM();
     }
     
-    void PROGRAM() throws SyntaxError{
+    void PROGRAM(){
         switch (token.getTag()){
             case Tag.INT:
             case Tag.FLOAT:
@@ -77,12 +85,12 @@ public class SyntaxAnalyser {
         }
     }
     
-    void DECL_LIST() throws SyntaxError{
+    void DECL_LIST(){
         DECL();
         DECL_REC();
     }
     
-    void DECL_REC() throws SyntaxError{
+    void DECL_REC(){
         switch(token.getTag()){
             case Tag.INT:
             case Tag.FLOAT:
@@ -94,7 +102,7 @@ public class SyntaxAnalyser {
         }
     }
     
-    void DECL() throws SyntaxError{
+    void DECL(){
         switch(token.getTag()){
             case Tag.INT:
             case Tag.FLOAT:
@@ -105,11 +113,11 @@ public class SyntaxAnalyser {
         }
     }
     
-    void IDENT_LIST() throws SyntaxError{
+    void IDENT_LIST(){
         eat(Tag.ID); IDENT_REC();
     }
     
-    void IDENT_REC() throws SyntaxError{
+    void IDENT_REC(){
         switch(token.getTag()){
             case Tag.COMMA:
                 eat(Tag.COMMA); eat(Tag.ID); IDENT_REC(); break;
@@ -117,7 +125,7 @@ public class SyntaxAnalyser {
         }
     }
     
-    void TYPE() throws SyntaxError{
+    void TYPE(){
         switch(token.getTag()){
             case Tag.INT:
                 eat(Tag.INT);break;
@@ -129,19 +137,23 @@ public class SyntaxAnalyser {
         }
     }
     
-    void STMT_LIST() throws SyntaxError{
+    void STMT_LIST(){
         STMT(); STMT_REC();
     }
     
-    void STMT_REC() throws SyntaxError{
+    void STMT_REC(){
         switch(token.getTag()){
-            case Tag.COMMA:
+            case Tag.ID:
+            case Tag.IF:
+            case Tag.DO:
+            case Tag.SCAN:
+            case Tag.PRINT:
                 STMT(); STMT_REC(); break;
             default: break;
         }
     }
     
-    void STMT() throws SyntaxError{
+    void STMT(){
         switch(token.getTag()){
             case Tag.ID:
                 ASSIGN_STMT(); eat(Tag.SEMICOLON); break;
@@ -157,15 +169,15 @@ public class SyntaxAnalyser {
         }
     }
     
-    void ASSIGN_STMT() throws SyntaxError{
+    void ASSIGN_STMT(){
         eat(Tag.ID); eat(Tag.EQUAL); SIMPLE_EXP();
     } 
     
-    void IF_STMT() throws SyntaxError{
+    void IF_STMT(){
         eat(Tag.IF); CONDITION(); eat(Tag.THEN); STMT_LIST(); IF_END();
     } 
     
-    void IF_END() throws SyntaxError{
+    void IF_END(){
         switch(token.getTag()){
             case Tag.END:
                 eat(Tag.END); break;
@@ -175,35 +187,35 @@ public class SyntaxAnalyser {
         }
     }
     
-    void CONDITION() throws SyntaxError{
+    void CONDITION(){
         EXPRESSION();
     }
     
-    void WHILE_STMT() throws SyntaxError{
+    void WHILE_STMT(){
         eat(Tag.DO); STMT_LIST(); STMT_SUFIX();
     } 
     
-    void STMT_SUFIX() throws SyntaxError{
+    void STMT_SUFIX(){
         eat(Tag.WHILE); CONDITION(); eat(Tag.END);
     } 
     
-    void READ_STMT() throws SyntaxError{
+    void READ_STMT(){
         eat(Tag.SCAN); eat(Tag.OPEN_PAR); eat(Tag.ID); eat(Tag.CLOSE_PAR);
     } 
     
-    void WRITE_STMT() throws SyntaxError{
+    void WRITE_STMT(){
         eat(Tag.PRINT); eat(Tag.OPEN_PAR); WRITABLE(); eat(Tag.CLOSE_PAR);
     } 
     
-    void WRITABLE() throws SyntaxError{
+    void WRITABLE(){
         SIMPLE_EXP();
     }
     
-    void EXPRESSION() throws SyntaxError{
+    void EXPRESSION(){
         SIMPLE_EXP(); EXP_END();
     }
     
-    void EXP_END() throws SyntaxError{
+    void EXP_END(){
         switch(token.getTag()){
             case Tag.COMPARATION:
             case Tag.GREATHER_EQUAL:
@@ -216,11 +228,11 @@ public class SyntaxAnalyser {
         }
     }
     
-    void SIMPLE_EXP() throws SyntaxError{
+    void SIMPLE_EXP(){
         TERM(); SIMPLE_END();
     }
     
-    void SIMPLE_END() throws SyntaxError{
+    void SIMPLE_END(){
         switch(token.getTag()){
             case Tag.MINUS:
             case Tag.OR:
@@ -230,11 +242,11 @@ public class SyntaxAnalyser {
         }
     }
     
-    void TERM() throws SyntaxError{
+    void TERM(){
         FACTOR_A(); TERM_END();
     }
     
-    void TERM_END() throws SyntaxError{
+    void TERM_END(){
         switch(token.getTag()){
             case Tag.MULT:
             case Tag.DIV:
@@ -244,7 +256,7 @@ public class SyntaxAnalyser {
         }
     }
     
-    void FACTOR_A() throws SyntaxError{
+    void FACTOR_A(){
         switch(token.getTag()){
             case Tag.MINUS:
                 eat(Tag.MINUS); FACTOR(); break;
@@ -261,7 +273,7 @@ public class SyntaxAnalyser {
         }
     }
     
-    void FACTOR() throws SyntaxError{
+    void FACTOR(){
         switch(token.getTag()){
             case Tag.ID:
                 eat(Tag.ID); break;
@@ -276,7 +288,7 @@ public class SyntaxAnalyser {
         }
     }
     
-    void REL_OP() throws SyntaxError{
+    void REL_OP(){
         switch(token.getTag()){
             case Tag.COMPARATION:
                 eat(Tag.COMPARATION);break;
@@ -294,7 +306,7 @@ public class SyntaxAnalyser {
         }
     }
     
-    void ADD_OP() throws SyntaxError{
+    void ADD_OP(){
         switch(token.getTag()){
             case Tag.PLUS:
                 eat(Tag.PLUS);break;
@@ -306,7 +318,7 @@ public class SyntaxAnalyser {
         }
     }
     
-    void MUL_OP() throws SyntaxError{
+    void MUL_OP(){
         switch(token.getTag()){
             case Tag.MULT:
                 eat(Tag.MULT);break;
@@ -318,7 +330,7 @@ public class SyntaxAnalyser {
         }
     }
     
-    void CONSTANT() throws SyntaxError{
+    void CONSTANT(){
         switch(token.getTag()){
             case Tag.INTEGER:
                 eat(Tag.INTEGER);break;

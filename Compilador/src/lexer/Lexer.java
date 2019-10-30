@@ -18,7 +18,7 @@ public class Lexer {
     private File f;
     private FileReader fr;
     private BufferedReader br;
-    private static int line_count = 1;
+    public static int line_count = 1;
     private char ch =' ';
     private char store =' ';
     
