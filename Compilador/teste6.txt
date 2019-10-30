@@ -1,4 +1,14 @@
 start
-	print(“Tem que fazer um teste aqui”);
+    int a;
+    a = 1;
+    do
+        if ( a > 0) then
+           print(“Tem que fazer um teste aqui”);
+        else
+     		print(“testado”);
+ 		end
+        a = a-1;
+    while ( a > 0 ) end
 exit
+
 

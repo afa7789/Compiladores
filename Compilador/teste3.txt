@@ -4,8 +4,8 @@ disponibilidade = “Sim”;
 pontuacaoMinima = 50;
 pontuacaoMaxima = 100;
 /* Entrada de dados
-Verifica aprovação de candidatos
-do
+Verifica aprovação de candidatos */
+do 
 print(“Pontuacao Candidato: ”);
 scan(pontuacao);
 print(“Disponibilidade Candidato: ”);

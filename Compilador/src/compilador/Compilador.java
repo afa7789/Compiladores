@@ -13,7 +13,8 @@ import syntax.SyntaxError;
 public class Compilador {
 
     public static void main(String[] args) throws FileNotFoundException, IOException {
-        String s = args[0];
+        
+        String s = args[5];
         System.out.println(s);
         
         Lexer lexy = new Lexer(s);
