@@ -8,13 +8,12 @@ import lexer.Lexer;
 import lexer.LexicalError;
 import lexer.Token;
 import syntax.SyntaxAnalyser;
-import syntax.SyntaxError;
 
 public class Compilador {
 
     public static void main(String[] args) throws FileNotFoundException, IOException {
         
-        String s = args[5];
+        String s = args[0];
         System.out.println(s);
         
         Lexer lexy = new Lexer(s);
@@ -31,7 +30,7 @@ public class Compilador {
                 lineData.add(lexy.line_count);
                 tokenList.add(token);
             }while(!token.getLexeme().equals("EOF"));
-                        
+            
             //Syntax
             SyntaxAnalyser syntax = new SyntaxAnalyser(tokenList, lineData);
             syntax.scan();

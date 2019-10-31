@@ -134,7 +134,8 @@ public class Lexer {
                     }while(ch != '\n');
                     line_count++;
                     return new Word(Tag.COMMENT,sb.toString());
-                }              
+                }
+                store = ch;
                 return Symbol.div;
             case '*':
                 return Symbol.mult;
@@ -158,11 +159,13 @@ public class Lexer {
                     return Symbol.diff;
                 else if(ch == '=')
                     return Symbol.less_equal;
+                store = ch;
                 return Symbol.less_than;
             
             case '>':
                 if(readchisc('='))
                     return Symbol.greather_equal;
+                store = ch;
                 return Symbol.greather_than;
         }
         

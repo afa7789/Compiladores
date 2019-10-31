@@ -5,12 +5,12 @@ start
 	a = 2;
 	x = 1.1;
 	scan (b);
-	scan (y)
-	result = (a*b ++ 1) / 2;
-	print “Resultado: ”;
+	scan (y);
+	result = (a*b + 1) / 2;
+	print (“Resultado: ”);
 	print (result);
 	print (“Total: ”);
 	total = y / x;
-	print (“Total: ”;
+	print (“Total: ”);
 	print (total);
 exit
