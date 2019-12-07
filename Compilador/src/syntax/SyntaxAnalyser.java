@@ -232,12 +232,20 @@ public class SyntaxAnalyser {
     
     void ASSIGN_STMT(){
         while(token.getTag().equals(Tag.COMMENT)) advance();
-        String type_a = ((Word) symbolList.get(token.getLexeme())).type;
+        
+        Word entry = (Word) symbolList.get(token.getLexeme());
+        String type_a = "";
+        if (entry == null)
+            errorSemantic("Variable " + token.getLexeme() + "undeclared");
+        else
+            type_a = entry.type;
+        
         eat(Tag.ID);
         eat(Tag.EQUAL);
         Node node = SIMPLE_EXP();
-        if (!type_a.equals(node.type)){
-            errorSemantic("Type mismatch");
+                
+        if (entry != null && entry.type != null && !type_a.equals(node.type)){
+            errorSemantic("Type mismatch: " + node.type + " assignment to " + type_a);
         }
     } 
     
@@ -291,12 +299,15 @@ public class SyntaxAnalyser {
         SIMPLE_EXP();
     }
     
-    void EXPRESSION(){
+    Node EXPRESSION(){
         while(token.getTag().equals(Tag.COMMENT)) advance();
-        SIMPLE_EXP(); EXP_END();
+        Node node = SIMPLE_EXP(); 
+        node = EXP_END(node.type);
+        return node;
     }
     
-    void EXP_END(){
+    Node EXP_END(String type){
+        Node node = new Node(type,null);
         while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.COMPARATION:
@@ -305,81 +316,116 @@ public class SyntaxAnalyser {
             case Tag.LESS_EQUAL:
             case Tag.LESS_THAN:
             case Tag.DIFF:
-                REL_OP(); SIMPLE_EXP(); break;
+                REL_OP(); node = SIMPLE_EXP();
+                
+                if (type != null && node.type != null && !node.type.equals(type)){
+                    errorSemantic("Type mismatch: " + node.type + " and " + type);
+                }
+                
+                node.type = "bool";
+                break;
             default: break;
         }
-    }
-    
-    Node SIMPLE_EXP(){
-        Node node = new Node(null,null);
-        while(token.getTag().equals(Tag.COMMENT)) advance();
-        TERM(); SIMPLE_END();
         return node;
     }
     
-    void SIMPLE_END(){
+    Node SIMPLE_EXP(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
+        Node node = TERM(); 
+        SIMPLE_END(node.type);
+        return node;
+    }
+    
+    void SIMPLE_END(String type){
         while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.MINUS:
             case Tag.OR:
             case Tag.PLUS:
-                ADD_OP(); TERM(); SIMPLE_END(); break;
+                ADD_OP(); Node node = TERM(); 
+                               
+                if (type != null && node.type != null && !node.type.equals(type)){
+                    errorSemantic("Type mismatch: " + node.type + " and " + type);
+                }
+                
+                SIMPLE_END(type); break;
             default: break;
         }
     }
     
-    void TERM(){
+    Node TERM(){
         while(token.getTag().equals(Tag.COMMENT)) advance();
-        FACTOR_A();
-        TERM_END();
+        Node node = FACTOR_A();
+        TERM_END(node.type);
+        return node;
     }
     
-    void TERM_END(){
+    void TERM_END(String type){
         while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.MULT:
             case Tag.DIV:
             case Tag.AND:
-                MUL_OP(); FACTOR_A(); TERM_END(); break;
+                MUL_OP(); Node node = FACTOR_A(); 
+                
+                if (type != null && node.type != null && !node.type.equals(type)){
+                    errorSemantic("Type mismatch: " + node.type + " and " + type);
+                }
+                
+                TERM_END(type); break;
             default: break;
         }
     }
     
-    void FACTOR_A(){
+    Node FACTOR_A(){
+        Node node = new Node(null,null);
         while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.MINUS:
-                eat(Tag.MINUS); FACTOR(); break;
+                eat(Tag.MINUS); node = FACTOR(); break;
             case Tag.NOT:
-                eat(Tag.NOT); FACTOR(); break;
+                eat(Tag.NOT); node = FACTOR(); break;
             case Tag.OPEN_PAR: 
             case Tag.ID: 
             case Tag.INTEGER: 
             case Tag.FLOATING:
             case Tag.LITERAL:
-                FACTOR(); break;
+                node = FACTOR(); break;
             
             default: error(); break;
         }
+        
+        return node;
     }
     
-    void FACTOR(){
+    Node FACTOR(){
+        Node node = new Node(null,null);
         while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
-            case Tag.ID:
+            case Tag.ID:                
+                Word entry = (Word) symbolList.get(token.getLexeme());
+                String type = null;
+                if (entry.type == null)
+                    errorSemantic("Variable " + token.getLexeme() + " undeclared");
+                else
+                    type = entry.type;
+                node = new Node(type, token.getLexeme());
+                
                 eat(Tag.ID);
                 break;
             case Tag.OPEN_PAR:
-                eat(Tag.OPEN_PAR); EXPRESSION(); eat(Tag.CLOSE_PAR); break;
+                eat(Tag.OPEN_PAR); node = EXPRESSION(); eat(Tag.CLOSE_PAR); break;
             case Tag.INTEGER: 
-                CONSTANT(); break;
+                CONSTANT(); node.type = "int"; break;
             case Tag.FLOATING:
-                CONSTANT(); break;
+                CONSTANT(); node.type = "float"; break;
             case Tag.LITERAL:
-                CONSTANT(); break;
+                CONSTANT(); node.type = "string"; break;
             
             default: error(); break;
         }
+        
+        return node;
     }
     
     void REL_OP(){
