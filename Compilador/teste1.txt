@@ -1,7 +1,7 @@
 start
 	int a, b;
 	int result;
-	float a,x,total; 
+	float x,y,total; 
 	a = 2;
 	x = 1.1;
 	scan (b);

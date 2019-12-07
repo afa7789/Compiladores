@@ -243,7 +243,7 @@ public class SyntaxAnalyser {
         eat(Tag.ID);
         eat(Tag.EQUAL);
         Node node = SIMPLE_EXP();
-                
+        
         if (entry != null && entry.type != null && !type_a.equals(node.type)){
             errorSemantic("Type mismatch: " + node.type + " assignment to " + type_a);
         }
