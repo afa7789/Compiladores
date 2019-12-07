@@ -11,10 +11,10 @@ do
 	scan(pontuacao);
 	print(“Disponibilidade Candidato: ”);
 	scan(disponibilidade);
-	if ((pontuação > pontuacaoMinima) and (disponibilidade==“Sim”) then
-		out(“Candidato aprovado”);
+	if ((pontuação > pontuacaoMinima) and (disponibilidade==“Sim”)) then
+		print(“Candidato aprovado”);
 		else
-		out(“Candidato reprovado”)
+		print(“Candidato reprovado”);
 	end
 while (pontuação >= 0)end
 exit

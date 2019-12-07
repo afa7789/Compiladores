@@ -6,9 +6,12 @@
 package syntax;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import lexer.Tag;
 import lexer.Token;
+import lexer.Word;
+import semantic.Node;
 
 /**
  *
@@ -16,46 +19,24 @@ import lexer.Token;
  *
  */
 
-public class Pair<String,String> {
-    private String type;
-    private String identifier;
-    public Pair(String type, String identifier){
-        this.type = type;
-        this.identifier = identifier;
-    }
-    public String getType(){ return type; }
-    public String getIdentifier(){ return identifier; }
-    public void setType(String type){ this.type = type; }
-    public void setIdentifier(String identifier){ this.identifier = identifier; }
-}
-
 public class SyntaxAnalyser {
     
     public Token token;
     private int index;
-    private List<Pair<String,String>> declList;
     private List<Token> tokenList;
     private List<Integer> lineData;
+    private Hashtable symbolList;
     public List<String> errorList;
     private int line_count;
 
-    //Usados pelo analisador Semantico
-    private List<String> identifierList;
-    private String lastType;
-    private List<Pair<String,String>> declList;
-    private String Type1;
-    private String Type2;
-    //
-    public SyntaxAnalyser(List<Token> list, List<Integer> lines){
+    public SyntaxAnalyser(List<Token> list, List<Integer> lines, Hashtable symbols){
         index = 0;
         tokenList = list;
         lineData = lines;
-        declList = new ArrayList<Pair<Float,Short>>();
         errorList = new ArrayList();
         token = getToken(); //lê primeiro token
         line_count = 0;
-        Type1 = nada;
-        Type2 = nada;
+        symbolList = symbols;
     }
     
     private Token getToken(){
@@ -80,70 +61,10 @@ public class SyntaxAnalyser {
         errorList.add(message);
     }
     
-
-    // Funções semanticas
     public void errorSemantic (String tipoErro){
-        String message = "Semantic Error \"" + tipoErro + "\"";
+        String message = "Semantic Error: " + tipoErro + " at line " + line_count;
         errorList.add(message);
     }
-
-    // Ver se tem declaração repetida
-    public void checkDeckList(){
-        for(int i = 0; i < deckList.size(); i++){
-            Pair decl = deckList.get(i);
-            String idName = decl.getIdentifier();
-
-            for(int j = i + 1; j < deckList.size(); j ++){
-                decl _decl = deckList.get(j);
-                String _idName = _decl.getIdentifier();
-
-                if(idName.equals(_idName))
-                    errorSemantic("multiple declarations with the same name" + _idName );
-            }
-        }
-    }
-
-    //checando se a declaração foi feita do identificador.
-    private boolean isIdentifierExists(String name){
-        for (decl varDecl : declList) {
-            String idName = varDecl.getIdentifier();
-
-            if(idName.equals(name))
-                return true;
-        }
-        return false;
-    }
-
-    public void checkIdentifiers(){
-        for (String identifier : identifierList) {
-            if(!isIdentifierExists(identifier))
-                errorSemantic( "there is no identifier declared with this name " + identifier );
-        }
-    }
-    //
-    public void checkType(String TipoEntrada){
-        if(Type1.equals("nada")){
-            Type1 = TipoEntrada;
-        }else if(Type2.equals("nada")){
-            Type2 = TipoEntrada;
-        }else if(!Type1.equals(Type2)){
-            errorSemantic("different types " + Type1 + "it's not the same as " + Type2 +"at line "  line_count;);
-        }else{
-            Type2="nada";
-        }
-    }
-
-    public typeOfIdentifier(String name){
-        for (decl varDecl : declList) {
-            String idName = varDecl.getIdentifier();
-
-            if(idName.equals(name))
-                return varDecl.getType();
-        }
-        return "Error";
-    }
-
-    //
 
     public void scan(){
         P_START();
@@ -204,55 +125,74 @@ public class SyntaxAnalyser {
             case Tag.INT:
             case Tag.FLOAT:
             case Tag.STRING:
-                TYPE(); IDENT_LIST(); eat(Tag.SEMICOLON);
+                String type = TYPE(); 
+                List<String> identifiers = IDENT_LIST(); 
+                
+                for (String id : identifiers){
+                    Word entry = (Word) symbolList.get(id);
+                    if (entry.type == null){
+                        entry.type = type;
+                    }
+                    else {
+                        errorSemantic("Variable " + id + " already declared");
+                    }
+                }
+                
+                eat(Tag.SEMICOLON);
                 break;
             default: error();
         }
     }
     
-    void TYPE(){
+    String TYPE(){
         while(token.getTag().equals(Tag.COMMENT)) advance();
+        String type = null;
         switch(token.getTag()){
-            //lastType foi adicionado para ter as declarações e comparar elas futuramente fazendo controle.
             case Tag.INT:
-                lastType="Int";
+                type = "int";
                 eat(Tag.INT);
                 break;
             case Tag.FLOAT:
-                lastType="Float";
+                type = "float";
                 eat(Tag.FLOAT);
                 break;
             case Tag.STRING:
-                lastType="String";
+                type = "string";
                 eat(Tag.STRING);
                 break;
             default: error();
         }
+        
+        return type;
     }
 
-    void IDENT_LIST(){
-        while(token.getTag().equals(Tag.COMMENT)){
-            // colocar informação na lista de declaração.
-            declList.add(lastType,token.getLexeme());
-            advance();
-        }
-        //adicionar identifier na lista para verificar se ele foi declarado depois.
-        identifierList.add(token.getIdentifier());
+    List<String> IDENT_LIST(){
+        while(token.getTag().equals(Tag.COMMENT)) advance();
+        List<String> ids = new ArrayList();
+        ids.add(token.getLexeme());
         eat(Tag.ID);
-        IDENT_REC();
+        List<String> ids_2 = IDENT_REC();
+        ids.addAll(ids_2);
+        return ids;
     }
     
-    void IDENT_REC(){
+    List<String> IDENT_REC(){
         while(token.getTag().equals(Tag.COMMENT)) advance();
+        
+        List<String> ids = new ArrayList();
+        
         switch(token.getTag()){
             case Tag.COMMA:
                 eat(Tag.COMMA);
-                //adicionar identifier na lista para verificar se ele foi declarado depois.
-                identifierList.add(token.getIdentifier());
+                ids.add(token.getLexeme());
                 eat(Tag.ID);
-                IDENT_REC(); break;
+                List<String> ids_2 = IDENT_REC();
+                ids.addAll(ids_2);
+                break;
             default: break;
         }
+        
+        return ids;
     }
     
     void STMT_LIST(){
@@ -292,11 +232,13 @@ public class SyntaxAnalyser {
     
     void ASSIGN_STMT(){
         while(token.getTag().equals(Tag.COMMENT)) advance();
-        //adicionar identifier na lista para verificar se ele foi declarado depois.
-        identifierList.add(token.getIdentifier());
+        String type_a = ((Word) symbolList.get(token.getLexeme())).type;
         eat(Tag.ID);
         eat(Tag.EQUAL);
-        SIMPLE_EXP(); 
+        Node node = SIMPLE_EXP();
+        if (!type_a.equals(node.type)){
+            errorSemantic("Type mismatch");
+        }
     } 
     
     void IF_STMT(){
@@ -335,8 +277,6 @@ public class SyntaxAnalyser {
         while(token.getTag().equals(Tag.COMMENT)) advance();
         eat(Tag.SCAN);
         eat(Tag.OPEN_PAR);
-        //adicionar identifier na lista para verificar se ele foi declarado depois.
-        identifierList.add(token.getIdentifier());
         eat(Tag.ID);
         eat(Tag.CLOSE_PAR);
     } 
@@ -370,9 +310,11 @@ public class SyntaxAnalyser {
         }
     }
     
-    void SIMPLE_EXP(){
+    Node SIMPLE_EXP(){
+        Node node = new Node(null,null);
         while(token.getTag().equals(Tag.COMMENT)) advance();
         TERM(); SIMPLE_END();
+        return node;
     }
     
     void SIMPLE_END(){
@@ -384,7 +326,6 @@ public class SyntaxAnalyser {
                 ADD_OP(); TERM(); SIMPLE_END(); break;
             default: break;
         }
-        Type1="nada";
     }
     
     void TERM(){
@@ -426,25 +367,15 @@ public class SyntaxAnalyser {
         while(token.getTag().equals(Tag.COMMENT)) advance();
         switch(token.getTag()){
             case Tag.ID:
-                //adicionar identifier na lista para verificar se ele foi declarado depois.
-                identifierList.add(token.getIdentifier());
-                //check tipagem
-                checkType(typeOfIdentifier(token.getIdentifier()));
                 eat(Tag.ID);
                 break;
             case Tag.OPEN_PAR:
                 eat(Tag.OPEN_PAR); EXPRESSION(); eat(Tag.CLOSE_PAR); break;
             case Tag.INTEGER: 
-                //check tipagem
-                checkType("Int");
                 CONSTANT(); break;
             case Tag.FLOATING:
-                //check tipagem
-                checkType("Float");
                 CONSTANT(); break;
             case Tag.LITERAL:
-                //check tipagem
-                checkType("String");
                 CONSTANT(); break;
             
             default: error(); break;

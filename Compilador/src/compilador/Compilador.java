@@ -32,7 +32,7 @@ public class Compilador {
             }while(!token.getLexeme().equals("EOF"));
             
             //Syntax
-            SyntaxAnalyser syntax = new SyntaxAnalyser(tokenList, lineData);
+            SyntaxAnalyser syntax = new SyntaxAnalyser(tokenList, lineData, lexy.words);
             syntax.scan();
             
             syntax.errorList.forEach((message) -> {
